@@ -109,15 +109,21 @@ and open the template in the editor.
                 return s;
             }
 
-            function Spherisity(x, y, N) {
-                var per = Perimeter(x, y, N);
-                var area = Area(x, y, N);
+            function Spherisity(per, area) {
                 var circleArea = per * per / 4 / Math.PI;
                 return area / circleArea;
             }
 
             function rnd(min, max) {
                 return Math.random() * (max - min) + min;
+            }
+            
+            function drawSpher(spher, N, w, h) {
+                context.beginPath();
+                var xStep = w / N;
+                for (var i = 0; i < N; ++i) {
+                    drawPoint(i * xStep, h - spher[i] * h, 0, h);
+                }
             }
 
             function init() {
@@ -141,8 +147,23 @@ and open the template in the editor.
                     y[i] = r[i] * Math.sin(phi[i]);
                 }
                 drawPolygon(x, y, wc, hc, nPoints);
-                spher = Spherisity(x, y, nPoints);
-                document.getElementById("sphericity").value = spher;
+                var per = Perimeter(x, y, nPoints);
+                var area = Area(x, y, nPoints);
+                var spher = Spherisity(per, area);               
+                
+                document.getElementById("Perimeter").value = per;
+                document.getElementById("Area").value = area;
+                document.getElementById("Sphericity").value = spher;
+                
+                var canvas = document.getElementById("graph");
+                context = canvas.getContext('2d');
+                w = canvas.width;
+                h = canvas.height;
+                wc = w / 2;
+                hc = h / 2;
+                drawGrid(w, h);
+                //drawAxis(w, h);
+                //drawSpher(spher, 1, w, h);
             }
 
             function main() {
@@ -154,11 +175,13 @@ and open the template in the editor.
         </script>
     </head>
     <body>
-        <canvas id="polygon" width="400" height="400" style="position:absolute; left:0px; top:0px;"></canvas>
-        <form id = "sphericityForm" action="" style="position:absolute; left:450px; top:0px;">
-            Sphericity:<br>
-            <input type="text" name="sphericity" id="sphericity"><br>
-            <input type="button" value="Generate" onclick="boo" id="generate">
-        </form> 
+        <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px;"></canvas>
+        <form id = "sphericityForm" action="" style="position:absolute; left:620px; top:0px;">
+            <input type="button" value="Generate" onclick="boo" id="generate"><br>
+            Perimeter:<br><input type="text" name="Perimeter" id="Perimeter"><br>
+            Area:<br><input type="text" name="Area" id="Area"><br>
+            Sphericity:<br><input type="text" name="Sphericity" id="Sphericity"><br>
+        </form>
+        <canvas id="graph" width="600" height="300" style="position:absolute; left:620px; top:300px;"></canvas>
     </body>
 </html>
