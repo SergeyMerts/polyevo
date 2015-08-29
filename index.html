@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Evolution of polygon</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript">
+
+            function drawGrid(width, height) {
+                context.beginPath();
+
+                for (var x = 0.5; x < width; x += 10) {
+                    context.moveTo(x, 0);
+                    context.lineTo(x, height);
+                }
+
+                for (var y = 0.5; y < height; y += 10) {
+                    context.moveTo(0, y);
+                    context.lineTo(width, y);
+                }
+
+                context.strokeStyle = "#eee";
+                context.stroke();
+            }
+
+            function drawAxis(width, height) {
+                context.beginPath();
+                //X
+                context.moveTo(0, height / 2);
+                context.lineTo(width, height / 2);
+                context.lineTo(width - 5, height / 2 - 5);
+                context.moveTo(width, height / 2);
+                context.lineTo(width - 5, height / 2 + 5);
+                //Y
+                context.moveTo(width / 2, height);
+                context.lineTo(width / 2, 0);
+                context.lineTo(width / 2 - 5, 5);
+                context.moveTo(width / 2, 0);
+                context.lineTo(width / 2 + 5, 5);
+
+                context.strokeStyle = "#020";
+                context.stroke();
+            }
+
+            function drawLine(x0, y0, x1, y1) {
+                context.beginPath();
+                context.lineWidth = 1;
+                context.moveTo(x0, y0);
+                context.lineTo(x1, y1);
+                context.strokeStyle = "#ff0000";
+                context.stroke();
+            }
+
+            function drawPoint(x, y, xc, yc) {
+                context.beginPath();
+                context.lineWidth = 2;
+                context.moveTo(x + xc, yc - y);
+                context.arc(x + xc, yc - y, 2, 0, 2 * Math.PI, true);
+                context.strokeStyle = "#110000";
+                context.stroke();
+            }
+
+            function drawPolygon(x, y, xc, yc, N) {
+                context.beginPath();
+                for (var i = 1; i < N; ++i) {
+                    drawLine(x[i - 1] + xc, yc - y[i - 1], x[i] + xc, yc - y[i]);
+                    drawPoint(x[i], y[i], xc, yc);
+                }
+                drawLine(x[N - 1] + xc, yc - y[N - 1], x[0] + xc, yc - y[0]); //last to zero
+                drawPoint(x[0], y[0], xc, yc); //zero point
+            }
+
+            function Perimeter(x, y, N) {
+                var per = 0;
+                for (var i = 1; i < N; ++i) {
+                    var x0 = x[i - 1];
+                    var y0 = y[i - 1];
+                    var x1 = x[i];
+                    var y1 = y[i];
+                    per += Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+                }
+                per += Math.sqrt((x[0] - x[N - 1]) * (x[0] - x[N - 1]) + (y[N - 1] - y[0]) * (y[N - 1] - y[0])); //last to zero
+                return per;
+            }
+
+            function Area(x, y, N) {
+                var s = 0;
+                for (var i = 1; i < N; ++i) {
+                    var x0 = x[i - 1];
+                    var y0 = y[i - 1];
+                    var x1 = x[i];
+                    var y1 = y[i];
+                    var a = Math.sqrt(x0 * x0 + y0 * y0);
+                    var b = Math.sqrt(x1 * x1 + y1 * y1);
+                    var c = Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+                    var p = (a + b + c) / 2;
+                    s += Math.sqrt(p * (p - a) * (p - b) * (p - c));
+                }
+                var a = Math.sqrt(x[N - 1] * x[N - 1] + y[N - 1] * y[N - 1]);
+                var b = Math.sqrt(x[0] * x[0] + y[0] * y[0]);
+                var c = Math.sqrt((x[0] - x[N - 1]) * (x[0] - x[N - 1]) + (y[0] - y[N - 1]) * (y[0] - y[N - 1]));
+                var p = (a + b + c) / 2;
+                s += Math.sqrt(p * (p - a) * (p - b) * (p - c)); //last to zero
+                return s;
+            }
+
+            function Spherisity(x, y, N) {
+                var per = Perimeter(x, y, N);
+                var area = Area(x, y, N);
+                var circleArea = per * per / 4 / Math.PI;
+                return area / circleArea;
+            }
+
+            function rnd(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function init() {
+                var canvas = document.getElementById("polygon");
+                context = canvas.getContext('2d');
+                canvas.width = canvas.width; //needed to clear canvas
+                w = canvas.width;
+                h = canvas.height;
+                wc = w / 2;
+                hc = h / 2;
+                drawGrid(w, h);
+                drawAxis(w, h);
+
+                var nPoints = 100;
+                var x = [], y = [], r = [], phi = [];
+                var phiStep = 2 * Math.PI / nPoints;
+                for (var i = 0; i < nPoints; i += 1) {
+                    r[i] = rnd(0, wc);
+                    phi[i] = rnd(i * phiStep, (i + 1) * phiStep);
+                    x[i] = r[i] * Math.cos(phi[i]);
+                    y[i] = r[i] * Math.sin(phi[i]);
+                }
+                drawPolygon(x, y, wc, hc, nPoints);
+                spher = Spherisity(x, y, nPoints);
+                document.getElementById("sphericity").value = spher;
+            }
+
+            function main() {
+                document.getElementById("generate").onclick = init;
+            }
+            
+            window.onload = main;
+
+        </script>
+    </head>
+    <body>
+        <canvas id="polygon" width="400" height="400" style="position:absolute; left:0px; top:0px;"></canvas>
+        <form id = "sphericityForm" action="" style="position:absolute; left:450px; top:0px;">
+            Sphericity:<br>
+            <input type="text" name="sphericity" id="sphericity"><br>
+            <input type="button" value="Generate" onclick="boo" id="generate">
+        </form> 
+    </body>
+</html>
