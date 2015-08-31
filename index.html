@@ -20,54 +20,61 @@ and open the template in the editor.
                 wc = w / 2;
                 hc = h / 2;
                 drawGrid(w, h);
-                drawAxis(w, h);
-
-                var nPoints = 100;
+                drawXAxis(0, h / 2, w);
+                drawYAxis(w / 2, h, h);
+                var spherArr = [];
+                var nPoints = 10;
                 var popSize = 10; //size of population
-                var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
-                var phiStep = 2 * Math.PI / nPoints;
-                var bestPolId = -1;
-                var bestPer = -1;
-                var bestArea = -1;
-                var maxSpher = -1;
-                var per, area, spher;
-                for (var pol = 0; pol < popSize; ++pol) {
-                    x[pol] = new Array(nPoints);
-                    y[pol] = new Array(nPoints);
-                    r[pol] = new Array(nPoints);
-                    phi[pol] = new Array(nPoints);
-                    
-                    for (var i = 0; i < nPoints; ++i) {
-                        r[pol][i] = rnd(0, wc);
-                        phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
-                        x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
-                        y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
-                    }
-                    per = Perimeter(x[pol], y[pol], nPoints);
-                    area = Area(x[pol], y[pol], nPoints);
-                    spher = Spherisity(per, area);
-                    if (spher > maxSpher) {
-                        maxSpher = spher;
-                        bestPer = per;
-                        bestArea = area;
-                        bestPolId = pol;
-                    }
-                }
-                
-                drawPolygon(x[bestPolId], y[bestPolId], wc, hc, nPoints);
-                document.getElementById("Perimeter").value = bestPer.toFixed(4);
-                document.getElementById("Area").value = bestArea.toFixed(4);
-                document.getElementById("Sphericity").value = maxSpher.toFixed(8);
+                for (var popId = 0; popId < 500; ++popId) {
+                    var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
+                    var phiStep = 2 * Math.PI / nPoints;
+                    var bestPolId = -1;
+                    var bestPer = -1;
+                    var bestArea = -1;
+                    var maxSpher = -1;
+                    var per, area, spher;
+                    for (var pol = 0; pol < popSize; ++pol) {
+                        x[pol] = new Array(nPoints);
+                        y[pol] = new Array(nPoints);
+                        r[pol] = new Array(nPoints);
+                        phi[pol] = new Array(nPoints);
 
-                var canvas = document.getElementById("graph");
-                context = canvas.getContext('2d');
-                w = canvas.width;
-                h = canvas.height;
-                wc = w / 2;
-                hc = h / 2;
-                drawGrid(w, h);
-                //drawAxis(w, h);
-                //drawSpher(spher, 1, w, h);
+                        for (var i = 0; i < nPoints; ++i) {
+                            r[pol][i] = rnd(0, wc);
+                            phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
+                            x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
+                            y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
+                        }
+                        per = Perimeter(x[pol], y[pol], nPoints);
+                        area = Area(x[pol], y[pol], nPoints);
+                        spher = Spherisity(per, area);
+                        if (spher > maxSpher) {
+                            maxSpher = spher;
+                            bestPer = per;
+                            bestArea = area;
+                            bestPolId = pol;
+                        }
+                    }
+
+                    spherArr[popId] = maxSpher;
+
+                    drawPolygon(x[bestPolId], y[bestPolId], wc, hc, nPoints);
+                    document.getElementById("Perimeter").value = bestPer.toFixed(4);
+                    document.getElementById("Area").value = bestArea.toFixed(4);
+                    document.getElementById("Sphericity").value = maxSpher.toFixed(8);
+
+                    canvas = document.getElementById("graph");
+                    context = canvas.getContext('2d');
+                    canvas.width = canvas.width; //needed to clear canvas
+                    w = canvas.width;
+                    h = canvas.height;
+                    wc = w / 2;
+                    hc = h / 2;
+                    drawGrid(w, h);
+                    drawXAxis(0, h, w);
+                    drawYAxis(0, h, h);
+                    drawSpher(spherArr, spherArr.length, w, h);
+                }
             }
 
             function main() {
@@ -83,7 +90,7 @@ and open the template in the editor.
     <body>
         <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px;"></canvas>
         <form id = "sphericityForm" action="" style="position:absolute; left:620px; top:0px;">
-            <input type="button" value="Generate" onclick="boo" id="generate"><br>
+            <input type="button" value="Start!" onclick="" id="generate"><br>
             Perimeter:  <output name="Perimeter" id="Perimeter">0</output><br>
             Area:  <output name="Area" id="Area">0</output><br>
             Sphericity:  <output name="Sphericity" id="Sphericity">0</output><br>
