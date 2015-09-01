@@ -12,27 +12,26 @@ and open the template in the editor.
         <script type="text/javascript">
 
             function init() {
-                var canvas = document.getElementById("polygon");
-                context = canvas.getContext('2d');
-                canvas.width = canvas.width; //needed to clear canvas
-                w = canvas.width;
-                h = canvas.height;
-                wc = w / 2;
-                hc = h / 2;
-                drawGrid(w, h);
-                drawXAxis(0, h / 2, w);
-                drawYAxis(w / 2, h, h);
+                
+                drawPolyBack(document.getElementById("polyBack"));
+                drawSpherBack(document.getElementById("spherBack"));
+                
+                var polyCanva = document.getElementById("polygon");
+                var polyCntx = polyCanva.getContext('2d');
+                var w = polyCanva.width;
+                var h = polyCanva.height;
                 var spherArr = [];
                 var nPoints = 10;
                 var popSize = 10; //size of population
-                for (var popId = 0; popId < 500; ++popId) {
+                for (var popId = 0; popId < 50; ++popId) {
                     var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
                     var phiStep = 2 * Math.PI / nPoints;
                     var bestPolId = -1;
                     var bestPer = -1;
                     var bestArea = -1;
                     var maxSpher = -1;
-                    var per, area, spher;
+                    var per, area;
+                    var spher = new Array(popSize);
                     for (var pol = 0; pol < popSize; ++pol) {
                         x[pol] = new Array(nPoints);
                         y[pol] = new Array(nPoints);
@@ -40,16 +39,16 @@ and open the template in the editor.
                         phi[pol] = new Array(nPoints);
 
                         for (var i = 0; i < nPoints; ++i) {
-                            r[pol][i] = rnd(0, wc);
+                            r[pol][i] = rnd(0, w / 2);
                             phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
                             x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
                             y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
                         }
                         per = Perimeter(x[pol], y[pol], nPoints);
                         area = Area(x[pol], y[pol], nPoints);
-                        spher = Spherisity(per, area);
-                        if (spher > maxSpher) {
-                            maxSpher = spher;
+                        spher[pol] = Spherisity(per, area);
+                        if (spher[pol] > maxSpher) {
+                            maxSpher = spher[pol];
                             bestPer = per;
                             bestArea = area;
                             bestPolId = pol;
@@ -57,23 +56,16 @@ and open the template in the editor.
                     }
 
                     spherArr[popId] = maxSpher;
-
-                    drawPolygon(x[bestPolId], y[bestPolId], wc, hc, nPoints);
+                    clearCanvas(polyCanva);
+                    drawPolygon(polyCntx, x[bestPolId], y[bestPolId], w / 2, h / 2, nPoints);
                     document.getElementById("Perimeter").value = bestPer.toFixed(4);
                     document.getElementById("Area").value = bestArea.toFixed(4);
                     document.getElementById("Sphericity").value = maxSpher.toFixed(8);
 
-                    canvas = document.getElementById("graph");
-                    context = canvas.getContext('2d');
-                    canvas.width = canvas.width; //needed to clear canvas
-                    w = canvas.width;
-                    h = canvas.height;
-                    wc = w / 2;
-                    hc = h / 2;
-                    drawGrid(w, h);
-                    drawXAxis(0, h, w);
-                    drawYAxis(0, h, h);
-                    drawSpher(spherArr, spherArr.length, w, h);
+                    var spherCanva = document.getElementById("spherGraph");
+                    var spherCntx = spherCanva.getContext('2d');
+                    clearCanvas(spherCanva);
+                    drawSpher(spherCntx, spherArr, spherArr.length, spherCanva.width, spherCanva.height);
                 }
             }
 
@@ -88,13 +80,15 @@ and open the template in the editor.
         <script type="application/javascript" src="MathFunctions.js"></script>
     </head>
     <body>
-        <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px;"></canvas>
+        <canvas id="polyBack" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 0;"></canvas>
+        <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 1;"></canvas>
         <form id = "sphericityForm" action="" style="position:absolute; left:620px; top:0px;">
             <input type="button" value="Start!" onclick="" id="generate"><br>
             Perimeter:  <output name="Perimeter" id="Perimeter">0</output><br>
             Area:  <output name="Area" id="Area">0</output><br>
             Sphericity:  <output name="Sphericity" id="Sphericity">0</output><br>
         </form>
-        <canvas id="graph" width="600" height="300" style="position:absolute; left:620px; top:300px;"></canvas>
+        <canvas id="spherBack" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 0;"></canvas>
+        <canvas id="spherGraph" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 1;"></canvas>
     </body>
 </html>
