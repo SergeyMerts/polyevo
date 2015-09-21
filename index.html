@@ -11,177 +11,98 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript">
 
-            function drawGrid(width, height) {
-                context.beginPath();
-
-                for (var x = 0.5; x < width; x += 10) {
-                    context.moveTo(x, 0);
-                    context.lineTo(x, height);
-                }
-
-                for (var y = 0.5; y < height; y += 10) {
-                    context.moveTo(0, y);
-                    context.lineTo(width, y);
-                }
-
-                context.strokeStyle = "#eee";
-                context.stroke();
-            }
-
-            function drawAxis(width, height) {
-                context.beginPath();
-                //X
-                context.moveTo(0, height / 2);
-                context.lineTo(width, height / 2);
-                context.lineTo(width - 5, height / 2 - 5);
-                context.moveTo(width, height / 2);
-                context.lineTo(width - 5, height / 2 + 5);
-                //Y
-                context.moveTo(width / 2, height);
-                context.lineTo(width / 2, 0);
-                context.lineTo(width / 2 - 5, 5);
-                context.moveTo(width / 2, 0);
-                context.lineTo(width / 2 + 5, 5);
-
-                context.strokeStyle = "#020";
-                context.stroke();
-            }
-
-            function drawLine(x0, y0, x1, y1) {
-                context.beginPath();
-                context.lineWidth = 1;
-                context.moveTo(x0, y0);
-                context.lineTo(x1, y1);
-                context.strokeStyle = "#ff0000";
-                context.stroke();
-            }
-
-            function drawPoint(x, y, xc, yc) {
-                context.beginPath();
-                context.lineWidth = 2;
-                context.moveTo(x + xc, yc - y);
-                context.arc(x + xc, yc - y, 2, 0, 2 * Math.PI, true);
-                context.strokeStyle = "#110000";
-                context.stroke();
-            }
-
-            function drawPolygon(x, y, xc, yc, N) {
-                context.beginPath();
-                for (var i = 1; i < N; ++i) {
-                    drawLine(x[i - 1] + xc, yc - y[i - 1], x[i] + xc, yc - y[i]);
-                    drawPoint(x[i], y[i], xc, yc);
-                }
-                drawLine(x[N - 1] + xc, yc - y[N - 1], x[0] + xc, yc - y[0]); //last to zero
-                drawPoint(x[0], y[0], xc, yc); //zero point
-            }
-
-            function Perimeter(x, y, N) {
-                var per = 0;
-                for (var i = 1; i < N; ++i) {
-                    var x0 = x[i - 1];
-                    var y0 = y[i - 1];
-                    var x1 = x[i];
-                    var y1 = y[i];
-                    per += Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
-                }
-                per += Math.sqrt((x[0] - x[N - 1]) * (x[0] - x[N - 1]) + (y[N - 1] - y[0]) * (y[N - 1] - y[0])); //last to zero
-                return per;
-            }
-
-            function Area(x, y, N) {
-                var s = 0;
-                for (var i = 1; i < N; ++i) {
-                    var x0 = x[i - 1];
-                    var y0 = y[i - 1];
-                    var x1 = x[i];
-                    var y1 = y[i];
-                    var a = Math.sqrt(x0 * x0 + y0 * y0);
-                    var b = Math.sqrt(x1 * x1 + y1 * y1);
-                    var c = Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
-                    var p = (a + b + c) / 2;
-                    s += Math.sqrt(p * (p - a) * (p - b) * (p - c));
-                }
-                var a = Math.sqrt(x[N - 1] * x[N - 1] + y[N - 1] * y[N - 1]);
-                var b = Math.sqrt(x[0] * x[0] + y[0] * y[0]);
-                var c = Math.sqrt((x[0] - x[N - 1]) * (x[0] - x[N - 1]) + (y[0] - y[N - 1]) * (y[0] - y[N - 1]));
-                var p = (a + b + c) / 2;
-                s += Math.sqrt(p * (p - a) * (p - b) * (p - c)); //last to zero
-                return s;
-            }
-
-            function Spherisity(per, area) {
-                var circleArea = per * per / 4 / Math.PI;
-                return area / circleArea;
-            }
-
-            function rnd(min, max) {
-                return Math.random() * (max - min) + min;
-            }
-            
-            function drawSpher(spher, N, w, h) {
-                context.beginPath();
-                var xStep = w / N;
-                for (var i = 0; i < N; ++i) {
-                    drawPoint(i * xStep, h - spher[i] * h, 0, h);
-                }
-            }
-
             function init() {
-                var canvas = document.getElementById("polygon");
-                context = canvas.getContext('2d');
-                canvas.width = canvas.width; //needed to clear canvas
-                w = canvas.width;
-                h = canvas.height;
-                wc = w / 2;
-                hc = h / 2;
-                drawGrid(w, h);
-                drawAxis(w, h);
-
-                var nPoints = 100;
-                var x = [], y = [], r = [], phi = [];
+                
+                drawPolyBack(document.getElementById("polyBack"));
+                drawSpherBack(document.getElementById("spherBack"));
+                
+                var polyCanva = document.getElementById("polygon");
+                var polyCntx = polyCanva.getContext('2d');
+                var w = polyCanva.width;
+                var h = polyCanva.height;
+                var spherArr = [];
+                var nPoints = 20;
+                var popSize = 150; //size of population
+                var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
+                
                 var phiStep = 2 * Math.PI / nPoints;
-                for (var i = 0; i < nPoints; i += 1) {
-                    r[i] = rnd(0, wc);
-                    phi[i] = rnd(i * phiStep, (i + 1) * phiStep);
-                    x[i] = r[i] * Math.cos(phi[i]);
-                    y[i] = r[i] * Math.sin(phi[i]);
+                for (var pol = 0; pol < popSize; ++pol) {
+                    x[pol] = new Array(nPoints);
+                    y[pol] = new Array(nPoints);
+                    r[pol] = new Array(nPoints);
+                    phi[pol] = new Array(nPoints);
+
+                    for (var i = 0; i < nPoints; ++i) {
+                        r[pol][i] = rnd(0, w / 2);
+                        phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
+                        x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
+                        y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
+                    }
                 }
-                drawPolygon(x, y, wc, hc, nPoints);
-                var per = Perimeter(x, y, nPoints);
-                var area = Area(x, y, nPoints);
-                var spher = Spherisity(per, area);               
-                
-                document.getElementById("Perimeter").value = per;
-                document.getElementById("Area").value = area;
-                document.getElementById("Sphericity").value = spher;
-                
-                var canvas = document.getElementById("graph");
-                context = canvas.getContext('2d');
-                w = canvas.width;
-                h = canvas.height;
-                wc = w / 2;
-                hc = h / 2;
-                drawGrid(w, h);
-                //drawAxis(w, h);
-                //drawSpher(spher, 1, w, h);
+                    
+                for (var popId = 0; popId < 50; ++popId) {
+                   
+                    var bestPolId = -1;
+                    var bestPer = -1;
+                    var bestArea = -1;
+                    var maxSpher = -1;
+                    var per, area;
+                    var spher = new Array(popSize);
+                    for (var pol = 0; pol < popSize; ++pol) {
+                    
+                        for (var i = 0; i < nPoints; ++i) {
+            //                r[pol][i] = rnd(0, w / 2);
+            //                phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
+                            x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
+                            y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
+                        }
+                        per = Perimeter(x[pol], y[pol], nPoints);
+                        area = Area(x[pol], y[pol], nPoints);
+                        spher[pol] = Spherisity(per, area);
+                        if (spher[pol] > maxSpher) {
+                            maxSpher = spher[pol];
+                            bestPer = per;
+                            bestArea = area;
+                            bestPolId = pol;
+                        }
+                    }
+          //          alert("maxSpher="+maxSpher);
+                    NewGenerationByWheel (r, phi, spher, popSize, nPoints, 1);
+                    spherArr[popId] = maxSpher;
+                    clearCanvas(polyCanva);
+                    drawPolygon(polyCntx, x[bestPolId], y[bestPolId], w / 2, h / 2, nPoints);
+                    document.getElementById("Perimeter").value = bestPer.toFixed(4);
+                    document.getElementById("Area").value = bestArea.toFixed(4);
+                    document.getElementById("Sphericity").value = maxSpher.toFixed(8);
+                    
+                    var spherCanva = document.getElementById("spherGraph");
+                    var spherCntx = spherCanva.getContext('2d');
+                    clearCanvas(spherCanva);
+                    drawSpher(spherCntx, spherArr, spherArr.length, spherCanva.width, spherCanva.height);
+                }
             }
 
             function main() {
                 document.getElementById("generate").onclick = init;
             }
-            
+
             window.onload = main;
 
         </script>
+        <script type="application/javascript" src="DrawFunctions.js"></script>
+        <script type="application/javascript" src="MathFunctions.js"></script>
+        <script type="application/javascript" src="GenomFunctions.js"></script>
     </head>
     <body>
-        <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px;"></canvas>
+        <canvas id="polyBack" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 0;"></canvas>
+        <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 1;"></canvas>
         <form id = "sphericityForm" action="" style="position:absolute; left:620px; top:0px;">
-            <input type="button" value="Generate" onclick="boo" id="generate"><br>
-            Perimeter:<br><input type="text" name="Perimeter" id="Perimeter"><br>
-            Area:<br><input type="text" name="Area" id="Area"><br>
-            Sphericity:<br><input type="text" name="Sphericity" id="Sphericity"><br>
+            <input type="button" value="Start!" onclick="" id="generate"><br>
+            Perimeter:  <output name="Perimeter" id="Perimeter">0</output><br>
+            Area:  <output name="Area" id="Area">0</output><br>
+            Sphericity:  <output name="Sphericity" id="Sphericity">0</output><br>
         </form>
-        <canvas id="graph" width="600" height="300" style="position:absolute; left:620px; top:300px;"></canvas>
+        <canvas id="spherBack" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 0;"></canvas>
+        <canvas id="spherGraph" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 1;"></canvas>
     </body>
 </html>
