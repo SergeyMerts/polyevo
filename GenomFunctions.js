@@ -1,108 +1,140 @@
-<!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<html>
-    <head>
-        <title>Evolution of polygon</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script type="text/javascript">
+function rnd(min, max) {
+    return Math.random() * (max - min) + min;
+}
 
-            function init() {
-                
-                drawPolyBack(document.getElementById("polyBack"));
-                drawSpherBack(document.getElementById("spherBack"));
-                
-                var polyCanva = document.getElementById("polygon");
-                var polyCntx = polyCanva.getContext('2d');
-                var w = polyCanva.width;
-                var h = polyCanva.height;
-                var spherArr = [];
-                var nPoints = 20;
-                var popSize = 150; //size of population
-                var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
-                
-                var phiStep = 2 * Math.PI / nPoints;
-                for (var pol = 0; pol < popSize; ++pol) {
-                    x[pol] = new Array(nPoints);
-                    y[pol] = new Array(nPoints);
-                    r[pol] = new Array(nPoints);
-                    phi[pol] = new Array(nPoints);
+function NewGenerationByWheel(r, phi, spher, N, nPoints, Level) {
+    var SumSpher = 0;
+    var ProbablyBeParent = new Array (N);
+    var tempr = new Array (N), tempphi = new Array (N);
+    for (var i = 0; i < N; ++i) {
+        SumSpher += + spher[i];
+        tempr[i] = new Array(nPoints);
+        tempphi[i] = new Array(nPoints);
+    }
+    ProbablyBeParent[0] = spher[0] / SumSpher;
+    for (var i = 1; i < N; ++i) {
+        ProbablyBeParent[i] = ProbablyBeParent[i-1] + spher[i] / SumSpher;
+    }
+//  alert ("Crosing!!!!!");
+    //crosover
+    for (var pp=0; pp<N; pp++) {
+		var mother=-1, father=-1;
+		var pmother, pfather;
+		pmother=Math.random();
+		for (var i = 0; i < N; ++i)	{
+			if ( i==0 && pmother>=0. && pmother<ProbablyBeParent[i]) {
+				mother=i;
+				i=N;
+			}
+			if ( i!=0 && pmother>=ProbablyBeParent[i-1] && pmother<ProbablyBeParent[i]) {
+				mother=i;
+				i=N;
+			}
+		}
+		do  {
+			pfather=Math.random();
+			for (var i=0; i<N; i++) {
+				if ( i==0 && pfather>=0. && pfather<ProbablyBeParent[i]) {
+					father=i;
+					i=N;
+				}
+				if ( i!=0 && pfather>=ProbablyBeParent[i-1] && pfather<ProbablyBeParent[i]) {
+					father=i;
+					i=N;
+				}
+			}
+		}while ( father==mother );
+//		alert ("Father="+father+"  mother="+mother);
+        Crossing(r[father], phi[father], r[mother], phi[mother], nPoints, tempr[pp], tempphi[pp], Level);
+	}//*/
+	
+	for (var pp=0; pp<N; pp++){
+	    for (var i = 0; i < nPoints; ++i)	{
+	    r[pp][i]=tempr[pp][i];
+	    phi[pp][i]=tempphi[pp][i];
+	    spher[pp][i]=0;
+	    
+	    }
+	}
+   
+}
 
-                    for (var i = 0; i < nPoints; ++i) {
-                        r[pol][i] = rnd(0, w / 2);
-                        phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
-                        x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
-                        y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
-                    }
-                }
-                    
-                for (var popId = 0; popId < 50; ++popId) {
-                   
-                    var bestPolId = -1;
-                    var bestPer = -1;
-                    var bestArea = -1;
-                    var maxSpher = -1;
-                    var per, area;
-                    var spher = new Array(popSize);
-                    for (var pol = 0; pol < popSize; ++pol) {
-                    
-                        for (var i = 0; i < nPoints; ++i) {
-            //                r[pol][i] = rnd(0, w / 2);
-            //                phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
-                            x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
-                            y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
-                        }
-                        per = Perimeter(x[pol], y[pol], nPoints);
-                        area = Area(x[pol], y[pol], nPoints);
-                        spher[pol] = Spherisity(per, area);
-                        if (spher[pol] > maxSpher) {
-                            maxSpher = spher[pol];
-                            bestPer = per;
-                            bestArea = area;
-                            bestPolId = pol;
-                        }
-                    }
-          //          alert("maxSpher="+maxSpher);
-                    NewGenerationByWheel (r, phi, spher, popSize, nPoints, 1);
-                    spherArr[popId] = maxSpher;
-                    clearCanvas(polyCanva);
-                    drawPolygon(polyCntx, x[bestPolId], y[bestPolId], w / 2, h / 2, nPoints);
-                    document.getElementById("Perimeter").value = bestPer.toFixed(4);
-                    document.getElementById("Area").value = bestArea.toFixed(4);
-                    document.getElementById("Sphericity").value = maxSpher.toFixed(8);
-                    
-                    var spherCanva = document.getElementById("spherGraph");
-                    var spherCntx = spherCanva.getContext('2d');
-                    clearCanvas(spherCanva);
-                    drawSpher(spherCntx, spherArr, spherArr.length, spherCanva.width, spherCanva.height);
-                }
-            }
+function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiChild, Level) {
+    var NIt=0;
+   
+    // crossing at half
+	if (Level==0)  {
+		if (nPoints%2==0)    {
+			NIt=nPoints/2;
+			for (var i=0; i<NIt; i++)   {
+				rChild[i]=rFather[i];
+				phiChild[i]=phiFathre[i];
+				rChild[i+NIt]=rMother[i+NIt];
+				phiChild[i+NIt]=phiMother[i+NIt];
+			}
+		}//end if (nPoints%2==0)
+        else    {
+			NIt=Math.floor(nPoints/2); 
+			for (var i=0; i<NIt; i++) {
+				rChild[i]=rFather[i];
+			    phiChild[i]=phiFathre[i];
+			    rChild[i+NIt+1]=rMother[i+NIt+1];
+			    phiChild[i+NIt+1]=phiMother[i+NIt+1];
+			}
+			rChild[NIt]=(rFather[NIt]+rMother[NIt])/2.;
+			phiChild[NIt]=(phiFather[NIt]+phiMother[NIt])/2.;
+		}
+	}//end if (Level==0)
 
-            function main() {
-                document.getElementById("generate").onclick = init;
-            }
+       // crossing at random half
+	if (Level==1)    {
+		var first=5;
+		first=Math.floor(rnd(0,nPoints-1));
+		if (nPoints%2==0)   {
+			NIt=nPoints/2;
+			for (var i=0; i<NIt; i++)   {
+				rChild[(i+first)%nPoints]=rFather[(i+first)%nPoints];
+			    phiChild[(i+first)%nPoints]=phiFathre[(i+first)%nPoints];
+			    rChild[(i+first+NIt)%nPoints]=rMother[(i+first+NIt)%nPoints];
+			    phiChild[(i+first+NIt)%nPoints]=phiMother[(i+first+NIt)%nPoints];
+			}
+		}//end if (NP%2==0)
+		else 	{
+			NIt=Math.floor(nPoints/2);
+			for (var i=0; i<NIt; i++)	{
+				rChild[(i+first)%nPoints]=rFather[(i+first)%nPoints];
+			    phiChild[(i+first)%nPoints]=phiFathre[(i+first)%nPoints];
+			    rChild[(i+first+NIt)%nPoints]=rMother[(i+first+NIt)%nPoints];
+			    phiChild[(i+first+NIt)%nPoints]=phiMother[(i+first+NIt)%nPoints];
+			}
+			rChild[(first+NIt)%nPoints]=(rFather[(first+NIt)%nPoints]+rMother[(first+NIt)%nPoints])/2.;
+			phiChild[(first+NIt)%nPoints]=(phiFather[(first+NIt)%nPoints]+phiMother[(first+NIt)%nPoints])/2.;
+		}
+	}//end if (Level==1)*/
 
-            window.onload = main;
-
-        </script>
-        <script type="application/javascript" src="DrawFunctions.js"></script>
-        <script type="application/javascript" src="MathFunctions.js"></script>
-        <script type="application/javascript" src="GenomFunctions.js"></script>
-    </head>
-    <body>
-        <canvas id="polyBack" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 0;"></canvas>
-        <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 1;"></canvas>
-        <form id = "sphericityForm" action="" style="position:absolute; left:620px; top:0px;">
-            <input type="button" value="Start!" onclick="" id="generate"><br>
-            Perimeter:  <output name="Perimeter" id="Perimeter">0</output><br>
-            Area:  <output name="Area" id="Area">0</output><br>
-            Sphericity:  <output name="Sphericity" id="Sphericity">0</output><br>
-        </form>
-        <canvas id="spherBack" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 0;"></canvas>
-        <canvas id="spherGraph" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 1;"></canvas>
-    </body>
-</html>
+// crossing by random chromosome
+	if (Level>=2)   {
+		var nx = new Array(nPoints);
+		var temp, counter=0, ncrossing;
+		ncrossing=Level;
+		
+		for (var i=0; i<nPoints; i++)
+		    nx[i]=0;
+		
+		do  {
+		    temp=rnd(0, NP-1);
+			if (nx[temp]==0) {nx[temp]=1; counter++;}
+		}while (counter!=ncrossing);
+			
+		for (var i=0; i<NP; i++)    {
+			if (nx[i]==0) {
+			    rChild[i]=rFather[i];
+		        phiChild[i]=phiFathre[i];
+		    }
+			if (nx[i]==1) {
+		        rChild[i]=rMother[i];
+		        phiChild[i]=phiMothre[i];
+		    }
+		}
+	}//end if (Level>=2)*/
+}//*/
