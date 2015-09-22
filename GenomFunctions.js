@@ -101,14 +101,14 @@ function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiCh
 		}//end if (NP%2==0)
 		else 	{
 			NIt=Math.floor(nPoints/2);
-			for (var i=0; i<NIt; i++)	{
+			for (var i=1; i<NIt+1; i++)	{
 				rChild[(i+first)%nPoints]=rFather[(i+first)%nPoints];
 			    phiChild[(i+first)%nPoints]=phiFathre[(i+first)%nPoints];
 			    rChild[(i+first+NIt)%nPoints]=rMother[(i+first+NIt)%nPoints];
 			    phiChild[(i+first+NIt)%nPoints]=phiMother[(i+first+NIt)%nPoints];
 			}
-			rChild[(first+NIt)%nPoints]=(rFather[(first+NIt)%nPoints]+rMother[(first+NIt)%nPoints])/2.;
-			phiChild[(first+NIt)%nPoints]=(phiFather[(first+NIt)%nPoints]+phiMother[(first+NIt)%nPoints])/2.;
+			rChild[first]=(rFather[first]+rMother[first])/2.;
+			phiChild[first]=(phiFather[first]+phiMother[first])/2.;
 		}
 	}//end if (Level==1)*/
 
