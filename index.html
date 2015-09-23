@@ -20,8 +20,8 @@ and open the template in the editor.
                 var w = polyCanva.width;
                 var h = polyCanva.height;
                 var spherArr = [];
-                var nPoints = 20;
-                var popSize = 150; //size of population
+                var nPoints = 41;
+                var popSize = 450; //size of population
                 var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
                 
                 var phiStep = 2 * Math.PI / nPoints;
@@ -38,7 +38,7 @@ and open the template in the editor.
                     }
                 }
                     
-                for (var popId = 0; popId < 50; ++popId) {
+                for (var popId = 0; popId < 100; ++popId) {
                    
                     var bestPolId = -1;
                     var bestPer = -1;
@@ -65,7 +65,7 @@ and open the template in the editor.
                         }
                     }
           //          alert("maxSpher="+maxSpher);
-                    NewGenerationByWheel (r, phi, spher, popSize, nPoints, 1);
+                    NewGenerationByWheel (r, phi, spher, popSize, nPoints, 5);
                     spherArr[popId] = maxSpher;
                     clearCanvas(polyCanva);
                     drawPolygon(polyCntx, x[bestPolId], y[bestPolId], w / 2, h / 2, nPoints);

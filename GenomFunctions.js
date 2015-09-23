@@ -59,7 +59,7 @@ function NewGenerationByWheel(r, phi, spher, N, nPoints, Level) {
    
 }
 
-function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiChild, Level) {
+function Crossing(rFather, phiFather, rMother, phiMother, nPoints, rChild, phiChild, Level) {
     var NIt=0;
    
     // crossing at half
@@ -68,7 +68,7 @@ function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiCh
 			NIt=nPoints/2;
 			for (var i=0; i<NIt; i++)   {
 				rChild[i]=rFather[i];
-				phiChild[i]=phiFathre[i];
+				phiChild[i]=phiFather[i];
 				rChild[i+NIt]=rMother[i+NIt];
 				phiChild[i+NIt]=phiMother[i+NIt];
 			}
@@ -77,7 +77,7 @@ function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiCh
 			NIt=Math.floor(nPoints/2); 
 			for (var i=0; i<NIt; i++) {
 				rChild[i]=rFather[i];
-			    phiChild[i]=phiFathre[i];
+			    phiChild[i]=phiFather[i];
 			    rChild[i+NIt+1]=rMother[i+NIt+1];
 			    phiChild[i+NIt+1]=phiMother[i+NIt+1];
 			}
@@ -89,12 +89,12 @@ function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiCh
        // crossing at random half
 	if (Level==1)    {
 		var first=5;
-		first=Math.floor(rnd(0,nPoints-1));
+		first=Math.floor(rnd(0,nPoints));
 		if (nPoints%2==0)   {
 			NIt=nPoints/2;
 			for (var i=0; i<NIt; i++)   {
 				rChild[(i+first)%nPoints]=rFather[(i+first)%nPoints];
-			    phiChild[(i+first)%nPoints]=phiFathre[(i+first)%nPoints];
+			    phiChild[(i+first)%nPoints]=phiFather[(i+first)%nPoints];
 			    rChild[(i+first+NIt)%nPoints]=rMother[(i+first+NIt)%nPoints];
 			    phiChild[(i+first+NIt)%nPoints]=phiMother[(i+first+NIt)%nPoints];
 			}
@@ -103,7 +103,7 @@ function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiCh
 			NIt=Math.floor(nPoints/2);
 			for (var i=1; i<NIt+1; i++)	{
 				rChild[(i+first)%nPoints]=rFather[(i+first)%nPoints];
-			    phiChild[(i+first)%nPoints]=phiFathre[(i+first)%nPoints];
+			    phiChild[(i+first)%nPoints]=phiFather[(i+first)%nPoints];
 			    rChild[(i+first+NIt)%nPoints]=rMother[(i+first+NIt)%nPoints];
 			    phiChild[(i+first+NIt)%nPoints]=phiMother[(i+first+NIt)%nPoints];
 			}
@@ -122,18 +122,18 @@ function Crossing(rFather, phiFathre, rMother, phiMother, nPoints, rChild, phiCh
 		    nx[i]=0;
 		
 		do  {
-		    temp=rnd(0, NP-1);
+		    temp=Math.floor(rnd(0, nPoints));
 			if (nx[temp]==0) {nx[temp]=1; counter++;}
 		}while (counter!=ncrossing);
 			
-		for (var i=0; i<NP; i++)    {
+		for (var i=0; i<nPoints; i++)    {
 			if (nx[i]==0) {
 			    rChild[i]=rFather[i];
-		        phiChild[i]=phiFathre[i];
+		        phiChild[i]=phiFather[i];
 		    }
 			if (nx[i]==1) {
 		        rChild[i]=rMother[i];
-		        phiChild[i]=phiMothre[i];
+		        phiChild[i]=phiMother[i];
 		    }
 		}
 	}//end if (Level>=2)*/
