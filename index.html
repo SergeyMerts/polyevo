@@ -10,20 +10,20 @@ and open the template in the editor.
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript">
+
+            var popId = 0;
+            var spherArr = [];
+            var nPoints = 0;
+            var popSize = 0;
+
             function init() {
-                
+
                 drawPolyBack(document.getElementById("polyBack"));
                 drawSpherBack(document.getElementById("spherBack"));
-                
-                var polyCanva = document.getElementById("polygon");
-                var polyCntx = polyCanva.getContext('2d');
-                var w = polyCanva.width;
-                var h = polyCanva.height;
-                var spherArr = [];
-                var nPoints = 41;
-                var popSize = 450; //size of population
+                nPoints = 100;
+                popSize = 500; //size of population
                 var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
-                
+
                 var phiStep = 2 * Math.PI / nPoints;
                 for (var pol = 0; pol < popSize; ++pol) {
                     x[pol] = new Array(nPoints);
@@ -31,15 +31,14 @@ and open the template in the editor.
                     r[pol] = new Array(nPoints);
                     phi[pol] = new Array(nPoints);
                     for (var i = 0; i < nPoints; ++i) {
-                        r[pol][i] = rnd(0, w / 2);
+                        r[pol][i] = rnd(0, document.getElementById("polygon").width / 2);
                         phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
-                        x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
-                        y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
                     }
                 }
-                    
-                for (var popId = 0; popId < 100; ++popId) {
-                   
+
+                setInterval(function () {
+
+                    var polyCanva = document.getElementById("polygon");
                     var bestPolId = -1;
                     var bestPer = -1;
                     var bestArea = -1;
@@ -47,10 +46,7 @@ and open the template in the editor.
                     var per, area;
                     var spher = new Array(popSize);
                     for (var pol = 0; pol < popSize; ++pol) {
-                    
                         for (var i = 0; i < nPoints; ++i) {
-            //                r[pol][i] = rnd(0, w / 2);
-            //                phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
                             x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
                             y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
                         }
@@ -64,20 +60,22 @@ and open the template in the editor.
                             bestPolId = pol;
                         }
                     }
-          //          alert("maxSpher="+maxSpher);
-                    NewGenerationByWheel (r, phi, spher, popSize, nPoints, 5);
+                    
+                    NewGenerationByWheel(r, phi, spher, popSize, nPoints, 1);
+                    
                     spherArr[popId] = maxSpher;
                     clearCanvas(polyCanva);
-                    drawPolygon(polyCntx, x[bestPolId], y[bestPolId], w / 2, h / 2, nPoints);
+                    drawPolygon(polyCanva.getContext('2d'), x[bestPolId], y[bestPolId], polyCanva.width / 2, polyCanva.height / 2, nPoints);
                     document.getElementById("Perimeter").value = bestPer.toFixed(4);
                     document.getElementById("Area").value = bestArea.toFixed(4);
                     document.getElementById("Sphericity").value = maxSpher.toFixed(8);
-                    
+
                     var spherCanva = document.getElementById("spherGraph");
                     var spherCntx = spherCanva.getContext('2d');
                     clearCanvas(spherCanva);
                     drawSpher(spherCntx, spherArr, spherArr.length, spherCanva.width, spherCanva.height);
-                }
+                    popId++;
+                }, 10);
             }
             function main() {
                 document.getElementById("generate").onclick = init;
@@ -101,3 +99,4 @@ and open the template in the editor.
         <canvas id="spherGraph" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 1;"></canvas>
     </body>
 </html>
+
