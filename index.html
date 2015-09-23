@@ -10,7 +10,6 @@ and open the template in the editor.
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script type="text/javascript">
-
             function init() {
                 
                 drawPolyBack(document.getElementById("polyBack"));
@@ -21,11 +20,26 @@ and open the template in the editor.
                 var w = polyCanva.width;
                 var h = polyCanva.height;
                 var spherArr = [];
-                var nPoints = 10;
-                var popSize = 10; //size of population
+                var nPoints = 20;
+                var popSize = 150; //size of population
+                var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
+                
+                var phiStep = 2 * Math.PI / nPoints;
+                for (var pol = 0; pol < popSize; ++pol) {
+                    x[pol] = new Array(nPoints);
+                    y[pol] = new Array(nPoints);
+                    r[pol] = new Array(nPoints);
+                    phi[pol] = new Array(nPoints);
+                    for (var i = 0; i < nPoints; ++i) {
+                        r[pol][i] = rnd(0, w / 2);
+                        phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
+                        x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
+                        y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
+                    }
+                }
+                    
                 for (var popId = 0; popId < 50; ++popId) {
-                    var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
-                    var phiStep = 2 * Math.PI / nPoints;
+                   
                     var bestPolId = -1;
                     var bestPer = -1;
                     var bestArea = -1;
@@ -33,14 +47,10 @@ and open the template in the editor.
                     var per, area;
                     var spher = new Array(popSize);
                     for (var pol = 0; pol < popSize; ++pol) {
-                        x[pol] = new Array(nPoints);
-                        y[pol] = new Array(nPoints);
-                        r[pol] = new Array(nPoints);
-                        phi[pol] = new Array(nPoints);
-
+                    
                         for (var i = 0; i < nPoints; ++i) {
-                            r[pol][i] = rnd(0, w / 2);
-                            phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
+            //                r[pol][i] = rnd(0, w / 2);
+            //                phi[pol][i] = rnd(i * phiStep, (i + 1) * phiStep);
                             x[pol][i] = r[pol][i] * Math.cos(phi[pol][i]);
                             y[pol][i] = r[pol][i] * Math.sin(phi[pol][i]);
                         }
@@ -54,30 +64,29 @@ and open the template in the editor.
                             bestPolId = pol;
                         }
                     }
-
+          //          alert("maxSpher="+maxSpher);
+                    NewGenerationByWheel (r, phi, spher, popSize, nPoints, 1);
                     spherArr[popId] = maxSpher;
                     clearCanvas(polyCanva);
                     drawPolygon(polyCntx, x[bestPolId], y[bestPolId], w / 2, h / 2, nPoints);
                     document.getElementById("Perimeter").value = bestPer.toFixed(4);
                     document.getElementById("Area").value = bestArea.toFixed(4);
                     document.getElementById("Sphericity").value = maxSpher.toFixed(8);
-
+                    
                     var spherCanva = document.getElementById("spherGraph");
                     var spherCntx = spherCanva.getContext('2d');
                     clearCanvas(spherCanva);
                     drawSpher(spherCntx, spherArr, spherArr.length, spherCanva.width, spherCanva.height);
                 }
             }
-
             function main() {
                 document.getElementById("generate").onclick = init;
             }
-
             window.onload = main;
-
         </script>
         <script type="application/javascript" src="DrawFunctions.js"></script>
         <script type="application/javascript" src="MathFunctions.js"></script>
+        <script type="application/javascript" src="GenomFunctions.js"></script>
     </head>
     <body>
         <canvas id="polyBack" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 0;"></canvas>
