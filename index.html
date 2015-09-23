@@ -13,15 +13,18 @@ and open the template in the editor.
 
             var popId = 0;
             var spherArr = [];
-            var nPoints = 0;
-            var popSize = 0;
+            var nPoints = -1;
+            var popSize = -1;
+            var level = -1;
 
             function init() {
+                document.getElementById("generate").disabled = true;
+                nPoints = document.getElementById("nOfPoints").value;
+                popSize = document.getElementById("sizeOfPop").value;
+                level = document.getElementById("typeOfCros").value;
 
                 drawPolyBack(document.getElementById("polyBack"));
                 drawSpherBack(document.getElementById("spherBack"));
-                nPoints = 100;
-                popSize = 500; //size of population
                 var x = new Array(popSize), y = new Array(popSize), r = new Array(popSize), phi = new Array(popSize);
 
                 var phiStep = 2 * Math.PI / nPoints;
@@ -60,9 +63,9 @@ and open the template in the editor.
                             bestPolId = pol;
                         }
                     }
-                    
-                    NewGenerationByWheel(r, phi, spher, popSize, nPoints, 1);
-                    
+
+                    NewGenerationByWheel(r, phi, spher, popSize, nPoints, level);
+
                     spherArr[popId] = maxSpher;
                     clearCanvas(polyCanva);
                     drawPolygon(polyCanva.getContext('2d'), x[bestPolId], y[bestPolId], polyCanva.width / 2, polyCanva.height / 2, nPoints);
@@ -78,6 +81,10 @@ and open the template in the editor.
                 }, 10);
             }
             function main() {
+                document.getElementById("generate").disabled = false;
+                document.getElementById("nOfPoints").value = "";
+                document.getElementById("sizeOfPop").value = "";
+                document.getElementById("typeOfCros").value = "";
                 document.getElementById("generate").onclick = init;
             }
             window.onload = main;
@@ -89,8 +96,16 @@ and open the template in the editor.
     <body>
         <canvas id="polyBack" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 0;"></canvas>
         <canvas id="polygon" width="600" height="600" style="position:absolute; left:0px; top:0px; z-index: 1;"></canvas>
-        <form id = "sphericityForm" action="" style="position:absolute; left:620px; top:0px;">
+        <form id = "inputForm" action="" style="position:absolute; left:620px; top:20px;">
+            Number of points in polygon:  <output name="nOfPoints"></output>
+            <input type="text" size="6" id="nOfPoints"><br>
+            Population size:  <output name="sizeOfPop"></output>
+            <input type="text" size="6" id="sizeOfPop"><br>
+            Crossover type:  <output name="typeOfCros"></output><br>
+            <input type="text" size="6" id="typeOfCros"><br>
             <input type="button" value="Start!" onclick="" id="generate"><br>
+        </form>
+        <form id = "sphericityForm" action="" style="position:absolute; left:620px; top:200px">
             Perimeter:  <output name="Perimeter" id="Perimeter">0</output><br>
             Area:  <output name="Area" id="Area">0</output><br>
             Sphericity:  <output name="Sphericity" id="Sphericity">0</output><br>
