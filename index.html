@@ -22,6 +22,9 @@ and open the template in the editor.
                 nPoints = document.getElementById("nOfPoints").value;
                 popSize = document.getElementById("sizeOfPop").value;
                 level = document.getElementById("typeOfCros").value;
+                var idealSp = idealSpher(nPoints);
+                drawIdealSpher(document.getElementById("idealSpher"), idealSp);
+                document.getElementById("IdealSphericity").value = idealSp.toFixed(8);
 
                 drawPolyBack(document.getElementById("polyBack"));
                 drawSpherBack(document.getElementById("spherBack"));
@@ -109,9 +112,11 @@ and open the template in the editor.
             Perimeter:  <output name="Perimeter" id="Perimeter">0</output><br>
             Area:  <output name="Area" id="Area">0</output><br>
             Sphericity:  <output name="Sphericity" id="Sphericity">0</output><br>
+            Ideal Sphericity:  <output name="IdealSphericity" id="IdealSphericity">0</output><br>
         </form>
         <canvas id="spherBack" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 0;"></canvas>
-        <canvas id="spherGraph" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 1;"></canvas>
+        <canvas id="idealSpher" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 1;"></canvas>
+        <canvas id="spherGraph" width="600" height="300" style="position:absolute; left:620px; top:300px; z-index: 2;"></canvas>
     </body>
 </html>
 

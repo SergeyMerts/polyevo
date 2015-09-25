@@ -42,3 +42,7 @@ function Spherisity(per, area) {
 function rnd(min, max) {
     return Math.random() * (max - min) + min;
 }
+
+function idealSpher(n) {
+    return Math.PI / n / Math.tan(Math.PI / n);
+}

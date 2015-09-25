@@ -110,3 +110,12 @@ function drawSpherBack(cnv) {
 function clearCanvas(cnv) {
     cnv.width = cnv.width;
 }
+
+function drawIdealSpher(cnv, spher) {
+    var polyCntx = cnv.getContext('2d');
+    clearCanvas(cnv);
+    var w = cnv.width;
+    var h = cnv.height;
+    var y = h * (1 - spher);
+    drawLine(polyCntx, 0, y, w, y);
+}
